@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="Gradle: com.facebook.android:facebook-applinks:5.9.0@aar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../loggenda-master/gradle/caches/transforms-2/files-2.1/82abe600f0d4646697ea5e16d6551deb/jetified-facebook-applinks-5.9.0/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/../loggenda-master/gradle/caches/transforms-2/files-2.1/82abe600f0d4646697ea5e16d6551deb/jetified-facebook-applinks-5.9.0/res" />
+      <root url="file://$PROJECT_DIR$/../loggenda-master/gradle/caches/transforms-2/files-2.1/82abe600f0d4646697ea5e16d6551deb/jetified-facebook-applinks-5.9.0/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../loggenda-master/gradle/caches/modules-2/files-2.1/com.facebook.android/facebook-applinks/5.9.0/7c471d2307d0177d2f3655ff512008063cd3efb8/facebook-applinks-5.9.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../loggenda-master/gradle/caches/modules-2/files-2.1/com.facebook.android/facebook-applinks/5.9.0/e7381cb874c6e0b6feda1beee7987bec8f23dd6d/facebook-applinks-5.9.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
