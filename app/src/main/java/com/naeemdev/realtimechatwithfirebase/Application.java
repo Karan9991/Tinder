@@ -11,11 +11,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -503,13 +505,14 @@ public class Application extends android.app.Application {
     private void ShowNotificationVisits() {
         Intent intent = new Intent(this, AccountsActivity.class);
         intent.putExtra("tab_show", "tab_visitors");
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_UPDATE_CURRENT);
-        Bitmap bitmapLogo = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+       // @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_UPDATE_CURRENT);
+        @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        Bitmap bitmapLogo = BitmapFactory.decodeResource(getResources(), R.drawable.button_back);
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
         Notification newMessageNotificationVisits = new NotificationCompat.Builder(this, CHANNEL_ID_5)
                 .setSmallIcon(setNotificationIcon())
-//                .setLargeIcon(CircleBitmap(bitmapLogo))
+                .setLargeIcon(CircleBitmap(bitmapLogo))
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setColor(getResources().getColor(R.color.colorPink))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -601,6 +604,7 @@ public class Application extends android.app.Application {
 
                             String uids = user_uid.replaceAll("[^0-9]", "");
                             final int uid = Integer.valueOf(uids);
+                            Log.e("appRunning", " "+appRunning);
 
                             if (!appRunning) {
 
@@ -636,7 +640,6 @@ public class Application extends android.app.Application {
     private void ShowNotificationChats(String stringTitle, String stringContent,
                                        String user_uid, int uid, Class classActivity) {
 
-
         Intent intent = new Intent(this, classActivity);
         intent.putExtra("user_uid", user_uid);
         @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
@@ -644,13 +647,14 @@ public class Application extends android.app.Application {
         Intent intentChat = new Intent(this, MainActivity.class);
         @SuppressLint("UnspecifiedImmutableFlag") PendingIntent chatPending = PendingIntent.getActivity(this, 0, intentChat, PendingIntent.FLAG_IMMUTABLE);
 
-        Bitmap bitmapLogo = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+       // Bitmap bitmapLogo = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        Bitmap bitmapLogo = BitmapFactory.decodeResource(getResources(), R.drawable.button_back);
 
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
         Notification newMessageNotificationChats = new NotificationCompat.Builder(this, CHANNEL_ID_2)
                 .setSmallIcon(setNotificationIcon())
-//                .setLargeIcon(CircleBitmap(bitmapLogo))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setColor(getResources().getColor(R.color.colorPink))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -719,8 +723,49 @@ public class Application extends android.app.Application {
 
         return output;
     }
+    public Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(5,
+                5, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
 
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, 5, 5);
 
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(5 / 2, 5 / 2,
+                5 / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+        //return _bmp;
+        return output;
+    }
+    public Bitmap getRoundedShape(Bitmap scaleBitmapImage) {
+        int targetWidth = 110;
+        int targetHeight = 110;
+        Bitmap targetBitmap = Bitmap.createBitmap(targetWidth,
+                targetHeight,Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(targetBitmap);
+        Path path = new Path();
+        path.addCircle(((float) targetWidth - 1) / 2,
+                ((float) targetHeight - 1) / 2,
+                (Math.min(((float) targetWidth),
+                        ((float) targetHeight)) / 2),
+                Path.Direction.CCW);
+
+        canvas.clipPath(path);
+        Bitmap sourceBitmap = scaleBitmapImage;
+        canvas.drawBitmap(sourceBitmap,
+                new Rect(0, 0,110,
+                        110),
+                new Rect(0, 0, targetWidth, targetHeight), new Paint(Paint.FILTER_BITMAP_FLAG));
+        return targetBitmap;
+    }
 }
 
 
