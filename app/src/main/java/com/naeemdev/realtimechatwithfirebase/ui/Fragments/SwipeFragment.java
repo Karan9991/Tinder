@@ -1,6 +1,7 @@
 package com.naeemdev.realtimechatwithfirebase.ui.Fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -24,13 +30,22 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.naeemdev.realtimechatwithfirebase.CustomAdatpter.SwipeAdapter;
+import com.naeemdev.realtimechatwithfirebase.Notifications.APIService;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Client;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Data;
+import com.naeemdev.realtimechatwithfirebase.Notifications.FCMSender;
+import com.naeemdev.realtimechatwithfirebase.Notifications.MyResponse;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Sender;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Token;
 import com.naeemdev.realtimechatwithfirebase.R;
 import com.naeemdev.realtimechatwithfirebase.model.Event_DataModel;
 import com.naeemdev.realtimechatwithfirebase.model.Loves_DataModel;
 import com.naeemdev.realtimechatwithfirebase.model.Matches_DataModel;
 import com.naeemdev.realtimechatwithfirebase.model.Nopes_DataModel;
 import com.naeemdev.realtimechatwithfirebase.model.Profile_DataModel;
+import com.naeemdev.realtimechatwithfirebase.ui.Activity.MessageActivity;
 import com.skyfishjy.library.RippleBackground;
 import com.squareup.picasso.Picasso;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
@@ -52,6 +67,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -87,6 +105,8 @@ public class SwipeFragment extends Fragment implements CardStackListener {
     private FirebaseFirestore firebaseFirestore;
     private ArrayList<Profile_DataModel> arrayUserClass;
     private List<String> arrayUserRemove;
+   // APIService apiService;
+    FCMSender fcmSender;
 
     /**
      * @param inflater
@@ -102,10 +122,12 @@ public class SwipeFragment extends Fragment implements CardStackListener {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         firebaseFirestore = FirebaseFirestore.getInstance();
-
+       // apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
+        //updateToken(FirebaseInstanceId.getInstance().getToken());
         if (firebaseUser != null) {
             currentUser = firebaseUser.getUid();
         }
+        fcmSender = new FCMSender(currentUser);
 
 
         arrayUserClass = new ArrayList<>();
@@ -917,6 +939,7 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                 if (task.isSuccessful()) {
+                                                                    fcmSender.sendNotification(swipedUser,"xcv","match");
                                                                     Toast.makeText(getContext(), "Hoorayy!! Matched!", Toast.LENGTH_SHORT).show();
                                                                 }
                                                             }
@@ -931,7 +954,87 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                 });
 
     }
+//    private void sendMessag(final String sender, final String receiver, String message){
+//        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+//        HashMap<String, Object> hashMap = new HashMap<>();
+//        hashMap.put("sender", sender);
+//        hashMap.put("receiver", receiver);
+//        hashMap.put("message", message);
+//        hashMap.put("isseen", false);
+//        reference.child("Chats").push().setValue(hashMap);
+//        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
+//                .child(currentUser)
+//                .child("profileUser");
+//        chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (!dataSnapshot.exists()){
+//                    chatRef.child("id").setValue("profileUser");
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//            }
+//        });
+//        final DatabaseReference chatRefReceiver = FirebaseDatabase.getInstance().getReference("Chatlist")
+//                .child("profileUser")
+//                .child(currentUser);
+//        chatRefReceiver.child("id").setValue(currentUser);
+//        final String msg = message;
+//        reference = FirebaseDatabase.getInstance().getReference("users").child(currentUser);
+//        reference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                //com.example.torontodating.authentication.Model.User user = dataSnapshot.getValue(com.example.torontodating.authentication.Model.User.class);
+//                // if (notify) {
+//                sendNotifiaction(receiver, sender, msg);
+//                //}
+//                //notify = false;
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//            }
+//        });
+//    }
 
+//    private void sendNotifiaction(String receiver, final String username, final String message){
+//        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+//        com.google.firebase.database.Query query = tokens.orderByKey().equalTo(receiver);
+//        query.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+//                    Token token = snapshot.getValue(Token.class);
+//                    Data data = new Data(currentUser, R.mipmap.ic_launcher, username+": "+message, "New Message",
+//                            "profileUser");
+//                    Sender sender = new Sender(data, token.getToken());
+//                    apiService.sendNotification(sender)
+//                            .enqueue(new Callback<MyResponse>() {
+//                                @Override
+//                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+//                                    if (response.code() == 200){
+//                                        if (response.body().success != 1){
+//                                           // Toast.makeText(MessageActivity.this, "Success!", Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    }
+//                                }
+//                                @Override
+//                                public void onFailure(Call<MyResponse> call, Throwable t) {
+//                                    Log.e("apiiiiiiiiiii"," "+t.getMessage());
+//                                }
+//                            });
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//            }
+//        });
+//    }
+//    private void updateToken(String token){
+//        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+//        Token token1 = new Token(token);
+//        reference.child("currentUser").setValue(token1);
+//    }
 
     public void SwipeUserLoves() {
 
@@ -967,6 +1070,7 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             SwipeUserMatch(swipedUser);
+                                            fcmSender.sendNotification(swipedUser,"xcv","like");
                                         }
                                     }
                                 });
@@ -975,7 +1079,7 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                     }
                 });
 
-        //  EventSend();
+          //EventSend();
 
     }
 
@@ -1014,6 +1118,7 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             SwipeUserMatch(swipedUser);
+                                            fcmSender.sendNotification(swipedUser,"xcv","super");
                                         }
                                     }
                                 });

@@ -5,7 +5,9 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -33,6 +35,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.naeemdev.realtimechatwithfirebase.Notifications.MyFirebaseIdService;
 import com.naeemdev.realtimechatwithfirebase.model.ChatUser_DataModel;
 import com.naeemdev.realtimechatwithfirebase.ui.Activity.AccountsActivity;
 import com.naeemdev.realtimechatwithfirebase.ui.Activity.MainActivity;
@@ -85,28 +88,29 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
 
-
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
         appRunning = true;
 
-        NotificationChannels();
-        StartNotificationMatch();
-        StartNotificationChats();
-        StartNotificationLikes();
-        StartNotificationSuper();
-        StartNotificationVisits();
+//        Intent intent = new Intent(this, FirebaseService.class);
+//        startService(intent);
+
+//        NotificationChannels();
+//        StartNotificationMatch();
+//        StartNotificationChats();
+//        StartNotificationLikes();
+//        StartNotificationSuper();
+//        StartNotificationVisits();
 
 
     }
 
-
     /**
      * set firbase notification channels id
      */
-    private void NotificationChannels() {
+    public void NotificationChannels() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -529,7 +533,7 @@ public class Application extends android.app.Application {
     /**
      * send notifcation for Chats
      */
-    private void StartNotificationChats() {
+    public void StartNotificationChats() {
 
         if (firebaseUser != null) {
 

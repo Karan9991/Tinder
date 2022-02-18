@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +28,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -37,12 +43,21 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.naeemdev.realtimechatwithfirebase.Application;
 import com.naeemdev.realtimechatwithfirebase.CustomAdatpter.MessageAdapter;
+import com.naeemdev.realtimechatwithfirebase.Notifications.APIService;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Client;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Data;
+import com.naeemdev.realtimechatwithfirebase.Notifications.FCMSender;
+import com.naeemdev.realtimechatwithfirebase.Notifications.MyResponse;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Sender;
+import com.naeemdev.realtimechatwithfirebase.Notifications.Token;
 import com.naeemdev.realtimechatwithfirebase.R;
 import com.naeemdev.realtimechatwithfirebase.model.Block_DataModel;
 import com.naeemdev.realtimechatwithfirebase.model.Chats_DataModel;
@@ -56,6 +71,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
 
@@ -100,6 +119,8 @@ public class MessageActivity extends AppCompatActivity {
     int intUnread;
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     private Menu menuMessage;
+    //APIService apiService;
+    FCMSender fcmSender;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +201,10 @@ public class MessageActivity extends AppCompatActivity {
                 chatProfile();
             }
         });
+        fcmSender = new FCMSender(currentUser);
+       // updateToken(FirebaseInstanceId.getInstance().getToken());
+
+       // apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
     }
 
     private void chatProfile() {
@@ -188,12 +213,92 @@ public class MessageActivity extends AppCompatActivity {
         intent.putExtra("user_uid", profileUser);
         startActivity(intent);
     }
+//    private void sendMessag(final String sender, final String receiver, String message){
+//        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+//        HashMap<String, Object> hashMap = new HashMap<>();
+//        hashMap.put("sender", sender);
+//        hashMap.put("receiver", receiver);
+//        hashMap.put("message", message);
+//        hashMap.put("isseen", false);
+//        reference.child("Chats").push().setValue(hashMap);
+//        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
+//                .child(currentUser)
+//                .child(profileUser);
+//        chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (!dataSnapshot.exists()){
+//                    chatRef.child("id").setValue(profileUser);
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//            }
+//        });
+//        final DatabaseReference chatRefReceiver = FirebaseDatabase.getInstance().getReference("Chatlist")
+//                .child(profileUser)
+//                .child(currentUser);
+//        chatRefReceiver.child("id").setValue(currentUser);
+//        final String msg = message;
+//        reference = FirebaseDatabase.getInstance().getReference("users").child(currentUser);
+//        reference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                //com.example.torontodating.authentication.Model.User user = dataSnapshot.getValue(com.example.torontodating.authentication.Model.User.class);
+//               // if (notify) {
+//                    //sendNotifiaction(receiver, sender, msg);
+//                //}
+//                //notify = false;
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//            }
+//        });
+//    }
 
+//    private void sendNotifiaction(String receiver, final String username, final String message){
+//        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+//        com.google.firebase.database.Query query = tokens.orderByKey().equalTo(receiver);
+//        query.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+//                    Token token = snapshot.getValue(Token.class);
+////                    Data data = new Data(currentUser, R.mipmap.ic_launcher, message, notificationKind,
+////                            profileUser);
+//                    Data data = new Data(message);
+//                    Sender sender = new Sender(data, token.getToken());
+//                    apiService.sendNotification(sender)
+//                            .enqueue(new Callback<MyResponse>() {
+//                                @Override
+//                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+//                                    if (response.code() == 200){
+//                                        if (response.body().success != 1){
+//                                             Toast.makeText(MessageActivity.this, "Success!", Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    }
+//                                }
+//                                @Override
+//                                public void onFailure(Call<MyResponse> call, Throwable t) {
+//                                    Log.e("apiiiiiiiiiii"," "+t.getMessage());
+//                                }
+//                            });
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//            }
+//        });
+//    }
+    private void updateToken(String token){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        Token token1 = new Token(token);
+        reference.child(currentUser).setValue(token1);
+    }
     private void sendMessage(
             final String chatSender,
             final String chatReceiver,
             final String chatMessage) {
-
         final HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("chat_datesent", Timestamp.now());
         hashMap.put("chat_dateseen", Timestamp.now());
@@ -260,7 +365,7 @@ public class MessageActivity extends AppCompatActivity {
                                                                                 @Override
                                                                                 public void onComplete(@NonNull Task<Void> task) {
                                                                                     if (task.isSuccessful()) {
-
+                                                                                        fcmSender.sendNotification(chatReceiver, chatSender, "chat");
                                                                                     } else {
                                                                                         firebaseFirestore.collection("users")
                                                                                                 .document(profileUser)
