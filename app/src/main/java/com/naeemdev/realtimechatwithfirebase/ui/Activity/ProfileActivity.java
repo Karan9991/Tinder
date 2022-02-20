@@ -3,6 +3,7 @@ package com.naeemdev.realtimechatwithfirebase.ui.Activity;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
+import com.naeemdev.realtimechatwithfirebase.Notifications.FCMSender;
 import com.naeemdev.realtimechatwithfirebase.R;
 import com.naeemdev.realtimechatwithfirebase.model.Event_DataModel;
 import com.naeemdev.realtimechatwithfirebase.model.Image_DataModel;
@@ -143,6 +145,9 @@ public class ProfileActivity extends AppCompatActivity {
     String user_cover_six;
     String user_cover_seven;
     String user_cover_eight;
+    private static final String TAG = "ProfileActivity";
+    FCMSender fcmSender;
+    String currentUserr;
 
     FloatingActionButton floatingActionButtonChat;
 
@@ -301,6 +306,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         carouselView = findViewById(R.id.carouselView);
         carouselView.setImageListener(imageListener);
+        Log.e(TAG,"visit");
 
         profileUser = getIntent().getStringExtra("user_uid");
 
@@ -373,6 +379,10 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
+//        if (firebaseUser != null) {
+//            currentUser = firebaseUser.getUid();
+//        }
+        Log.e(TAG, "onCreateView: " +"visit");
     }
 
     private void BlockUser() {
@@ -696,6 +706,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         currentUser = firebaseUser.getUid();
+        fcmSender = new FCMSender(currentUser);
+        fcmSender.sendNotification(profileUser,"xcv","visit");
 
         firebaseFirestore.collection("users")
                 .document(currentUser)

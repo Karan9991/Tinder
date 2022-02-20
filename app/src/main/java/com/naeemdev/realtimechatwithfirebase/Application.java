@@ -83,6 +83,7 @@ public class Application extends android.app.Application {
     FirebaseFirestore firebaseFirestore;
     int add;
     int news;
+    private static final String TAG = "Application";
 
     @Override
     public void onCreate() {
@@ -97,12 +98,12 @@ public class Application extends android.app.Application {
 //        Intent intent = new Intent(this, FirebaseService.class);
 //        startService(intent);
 
-//        NotificationChannels();
+        //NotificationChannels();
 //        StartNotificationMatch();
 //        StartNotificationChats();
-//        StartNotificationLikes();
-//        StartNotificationSuper();
-//        StartNotificationVisits();
+       // StartNotificationLikes();
+        //StartNotificationSuper();
+       // StartNotificationVisits();
 
 
     }
@@ -287,7 +288,7 @@ public class Application extends android.app.Application {
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                             if (queryDocumentSnapshots != null) {
-                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                                     if (doc.getType() == DocumentChange.Type.ADDED) {
                                         firebaseFirestore.collection("users")
                                                 .document(currentUser)
@@ -297,9 +298,14 @@ public class Application extends android.app.Application {
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_likes").equals("yes")) {
-                                                                if (!appRunning) {
+                                                             //   if (!appRunning) {
+                                                                String user_super = doc.getDocument().getString("user_super");
+                                                                if (user_super == null || user_super.equals("no")) {
+                                                                    //  if (!appRunning) {
                                                                     ShowNotificationLikes();
+                                                                    //}
                                                                 }
+                                                               // }
                                                             }
                                                         }
                                                     }
@@ -314,9 +320,13 @@ public class Application extends android.app.Application {
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_likes").equals("yes")) {
-                                                                if (!appRunning) {
+                                                              //  if (!appRunning) {
+                                                                String user_super = doc.getDocument().getString("user_super");
+                                                                if (user_super == null || user_super.equals("no")) {
+                                                                    //  if (!appRunning) {
                                                                     ShowNotificationLikes();
-                                                                }
+                                                                    //}
+                                                                }                                                                //}
                                                             }
                                                         }
                                                     }
@@ -337,7 +347,7 @@ public class Application extends android.app.Application {
     private void ShowNotificationLikes() {
         Intent intent = new Intent(this, AccountsActivity.class);
         intent.putExtra("tab_show", "tab_likes");
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         Bitmap bitmapLogo = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -362,6 +372,7 @@ public class Application extends android.app.Application {
      * send supper like notification
      */
     private void StartNotificationSuper() {
+        Log.e(TAG,"super");
         if (firebaseUser != null) {
             final String currentUser = firebaseUser.getUid();
             firebaseFirestore.collection("users")
@@ -383,9 +394,9 @@ public class Application extends android.app.Application {
                                                             if (task.getResult().getString("alert_super").equals("yes")) {
                                                                 String user_super = doc.getDocument().getString("user_super");
                                                                 if (user_super != null && user_super.equals("yes")) {
-                                                                    if (!appRunning) {
+                                                                  //  if (!appRunning) {
                                                                         ShowNotificationSuper();
-                                                                    }
+                                                                    //}
                                                                 }
                                                             }
                                                         }
@@ -403,9 +414,9 @@ public class Application extends android.app.Application {
                                                             if (task.getResult().getString("alert_super").equals("yes")) {
                                                                 String user_super = doc.getDocument().getString("user_super");
                                                                 if (user_super != null && user_super.equals("yes")) {
-                                                                    if (!appRunning) {
+                                                                 //   if (!appRunning) {
                                                                         ShowNotificationSuper();
-                                                                    }
+                                                                   // }
                                                                 }
                                                             }
                                                         }
@@ -424,9 +435,11 @@ public class Application extends android.app.Application {
      * show supper like notification
      */
     private void ShowNotificationSuper() {
+        Log.e(TAG,"super1");
+
         Intent intent = new Intent(this, AccountsActivity.class);
         intent.putExtra("tab_show", "tab_likes");
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         Bitmap bitmapLogo = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -470,9 +483,9 @@ public class Application extends android.app.Application {
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_visits").equals("yes")) {
-                                                                if (!appRunning) {
+                                                                //if (!appRunning) {
                                                                     ShowNotificationVisits();
-                                                                }
+                                                                //}
                                                             }
                                                         }
                                                     }
@@ -487,9 +500,9 @@ public class Application extends android.app.Application {
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_visits").equals("yes")) {
-                                                                if (!appRunning) {
+                                                               // if (!appRunning) {
                                                                     ShowNotificationVisits();
-                                                                }
+                                                                //}
                                                             }
                                                         }
                                                     }

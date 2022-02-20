@@ -127,6 +127,11 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 StartNotificationLikes();
             } else if (remoteMessage.getData().get("body").equals("super")){
                 StartNotificationSuper();
+                Log.e("test","super");
+            }
+            else if (remoteMessage.getData().get("body").equals("visit")){
+                StartNotificationVisits();
+                Log.e("test","visit");
             }
         }
 //        StartNotificationLikes();
@@ -441,7 +446,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 
         Notification newMessageNotificationMatch = new NotificationCompat.Builder(this, CHANNEL_ID_1)
                 .setSmallIcon(setNotificationIcon())
-//                .setLargeIcon(CircleBitmap(bitmapLogo))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setColor(getResources().getColor(R.color.colorPink))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -471,7 +476,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                             if (queryDocumentSnapshots != null) {
-                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                for (final DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
                                     if (doc.getType() == DocumentChange.Type.ADDED) {
                                         firebaseFirestore.collection("users")
                                                 .document(currentUser)
@@ -482,8 +487,12 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_likes").equals("yes")) {
                                                               //  if (!Application.appRunning) {
+                                                                String user_super = doc.getDocument().getString("user_super");
+                                                                if (user_super == null || user_super.equals("no")) {
+                                                                    //  if (!appRunning) {
                                                                     ShowNotificationLikes();
-                                                                //}
+                                                                    //}
+                                                                }                                                                //}
                                                             }
                                                         }
                                                     }
@@ -498,9 +507,13 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_likes").equals("yes")) {
-                                                                if (!Application.appRunning) {
+                                                               // if (!Application.appRunning) {
+                                                                String user_super = doc.getDocument().getString("user_super");
+                                                                if (user_super == null || user_super.equals("no")) {
+                                                                    //  if (!appRunning) {
                                                                     ShowNotificationLikes();
-                                                                }
+                                                                    //}
+                                                                }                                                                //}
                                                             }
                                                         }
                                                     }
@@ -527,7 +540,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 
         Notification newMessageNotificationLikes = new NotificationCompat.Builder(this, CHANNEL_ID_3)
                 .setSmallIcon(setNotificationIcon())
-//                .setLargeIcon(CircleBitmap(bitmapLogo))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setColor(getResources().getColor(R.color.colorPink))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -546,6 +559,8 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
      * send supper like notification
      */
     private void StartNotificationSuper() {
+        Log.e("test","super1");
+
         if (firebaseUser != null) {
             final String currentUser = firebaseUser.getUid();
             firebaseFirestore.collection("users")
@@ -567,9 +582,11 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                                                             if (task.getResult().getString("alert_super").equals("yes")) {
                                                                 String user_super = doc.getDocument().getString("user_super");
                                                                 if (user_super != null && user_super.equals("yes")) {
-                                                                    if (!Application.appRunning) {
-                                                                        ShowNotificationSuper();
-                                                                    }
+                                                                   // if (!Application.appRunning) {
+                                                                    Log.e("test","super2");
+
+                                                                    ShowNotificationSuper();
+                                                                   // }
                                                                 }
                                                             }
                                                         }
@@ -587,9 +604,11 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                                                             if (task.getResult().getString("alert_super").equals("yes")) {
                                                                 String user_super = doc.getDocument().getString("user_super");
                                                                 if (user_super != null && user_super.equals("yes")) {
-                                                                    if (!Application.appRunning) {
+                                                                    Log.e("test","super2a");
+
+                                                                    //  if (!Application.appRunning) {
                                                                         ShowNotificationSuper();
-                                                                    }
+                                                                   // }
                                                                 }
                                                             }
                                                         }
@@ -608,6 +627,8 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
      * show supper like notification
      */
     private void ShowNotificationSuper() {
+        Log.e("test","super3");
+
         Intent intent = new Intent(this, AccountsActivity.class);
         intent.putExtra("tab_show", "tab_likes");
         @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
@@ -616,7 +637,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 
         Notification newMessageNotificationSuper = new NotificationCompat.Builder(this, CHANNEL_ID_4)
                 .setSmallIcon(setNotificationIcon())
-//                .setLargeIcon(CircleBitmap(bitmapLogo))
+//                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setColor(getResources().getColor(R.color.colorPink))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -654,9 +675,9 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_visits").equals("yes")) {
-                                                                if (!Application.appRunning) {
+//                                                                if (!Application.appRunning) {
                                                                     ShowNotificationVisits();
-                                                                }
+                                                               // }
                                                             }
                                                         }
                                                     }
@@ -671,9 +692,9 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             if (task.getResult().getString("alert_visits").equals("yes")) {
-                                                                if (!Application.appRunning) {
+//                                                                if (!Application.appRunning) {
                                                                     ShowNotificationVisits();
-                                                                }
+                                                               // }
                                                             }
                                                         }
                                                     }
@@ -700,7 +721,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 
         Notification newMessageNotificationVisits = new NotificationCompat.Builder(this, CHANNEL_ID_5)
                 .setSmallIcon(setNotificationIcon())
-                .setLargeIcon(CircleBitmap(bitmapLogo))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setColor(getResources().getColor(R.color.colorPink))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

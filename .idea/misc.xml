@@ -17,6 +17,7 @@
         <entry key="app/src/main/res/layout/fragment_matches.xml" value="0.30885416666666665" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.30885416666666665" />
         <entry key="app/src/main/res/layout/fragment_user.xml" value="0.30885416666666665" />
+        <entry key="app/src/main/res/layout/fragment_visitores.xml" value="0.1" />
         <entry key="app/src/main/res/layout/profile_details.xml" value="0.30885416666666665" />
         <entry key="app/src/main/res/layout/users_item.xml" value="0.30885416666666665" />
       </map>

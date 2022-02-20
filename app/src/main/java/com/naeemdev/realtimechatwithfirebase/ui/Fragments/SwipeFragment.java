@@ -1037,8 +1037,6 @@ public class SwipeFragment extends Fragment implements CardStackListener {
 //    }
 
     public void SwipeUserLoves() {
-
-
         final String swipedUser = arrayUserClass.get(intSwipePositionFirst).getUser_uid();
 
         final Map<String, Object> mapLovesUser = new HashMap<>();
@@ -1080,12 +1078,10 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                 });
 
           //EventSend();
-
     }
 
 
     public void SwipeUserSuper() {
-
 
         final String swipedUser = arrayUserClass.get(intSwipePositionFirst).getUser_uid();
 
@@ -1102,11 +1098,12 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                      //  fcmSender.sendNotification(swipedUser,"xcv","super");
 
                         Map<String, Object> mapLikesUser = new HashMap<>();
                         mapLikesUser.put("user_likes", currentUser);
                         mapLikesUser.put("user_liked", Timestamp.now());
-                        mapLovesUser.put("user_super", "yes");
+                        mapLikesUser.put("user_super", "yes");
 
                         firebaseFirestore.collection("users")
                                 .document(swipedUser)
@@ -1118,6 +1115,7 @@ public class SwipeFragment extends Fragment implements CardStackListener {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             SwipeUserMatch(swipedUser);
+                                            Log.e("Swipefragment","super");
                                             fcmSender.sendNotification(swipedUser,"xcv","super");
                                         }
                                     }

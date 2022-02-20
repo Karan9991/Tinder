@@ -2,6 +2,7 @@ package com.naeemdev.realtimechatwithfirebase.ui.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.naeemdev.realtimechatwithfirebase.Notifications.FCMSender;
 import com.naeemdev.realtimechatwithfirebase.R;
 import com.naeemdev.realtimechatwithfirebase.firestore.VisitorsFirestore;
 import com.naeemdev.realtimechatwithfirebase.model.Visitors_DataModel;
@@ -34,6 +36,7 @@ public class VisitorsFragment extends Fragment {
     LinearLayout linearLayoutVisitorsEmpty;
     private RecyclerView recyclerViewVisitsView;
     private VisitorsFirestore visitorsFirestore;
+    private static final String TAG = "VisitorsFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,6 +53,7 @@ public class VisitorsFragment extends Fragment {
         linearLayoutVisitorsContent.setVisibility(View.VISIBLE);
         linearLayoutVisitorsEmpty = view.findViewById(R.id.linearLayoutVisitorsEmpty);
         linearLayoutVisitorsEmpty.setVisibility(View.GONE);
+
 
 
         firebaseFirestore.collection("users")
@@ -78,7 +82,6 @@ public class VisitorsFragment extends Fragment {
     }
 
     private void VisitsRecyclerView() {
-
         Query query = firebaseFirestore.collection("users")
                 .document(firebaseUser.getUid())
                 .collection("visits")
@@ -113,7 +116,6 @@ public class VisitorsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
         visitorsFirestore.startListening();
 
     }
